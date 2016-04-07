@@ -14,6 +14,8 @@ namespace AXFSoftware.Security.Cryptography
         public const int KeySizeMinBits = KeySizeMinBytes * 8;
         public const int KeySizeMaxBytes = 32;
         public const int KeySizeMaxBits = KeySizeMaxBytes * 8;
+        public const int KeySizeSkipBytes = 4;
+        public const int KeySizeSkipBits = KeySizeSkipBytes * 8;
         public const int IVSizeMinBytes = 4;
         public const int IVSizeMinBits = IVSizeMinBytes * 8;
         public const int KeyIVMaxBytes = 48;
@@ -40,6 +42,11 @@ namespace AXFSoftware.Security.Cryptography
                 throw new ArgumentOutOfRangeException(nameof(key),
                                                       $"Key length must be between {KeySizeMinBytes} and {KeySizeMaxBytes} bytes");
             }
+            if (key.Length % KeySizeSkipBytes != 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(key),
+                                                      $"Key length must be a multiple of {KeySizeSkipBytes} bytes");
+            }
 
             if (iv == null)
                 throw new ArgumentNullException(nameof(iv));
@@ -56,7 +63,7 @@ namespace AXFSoftware.Security.Cryptography
             }
 
             if (_padding == PaddingMode.None)
-                throw new ArgumentOutOfRangeException(nameof(paddingMode), "Padding cannot be None.");
+                throw new ArgumentOutOfRangeException(nameof(paddingMode), "Padding cannot be None");
 
             _padding = paddingMode;
 
@@ -101,10 +108,20 @@ namespace AXFSoftware.Security.Cryptography
             throw new NotImplementedException();
         }
 
+        public virtual void PerformRound(byte[] inputBuffer, int inputOffset,
+                                         byte[] outputBuffer, int outputOffset)
+        {
+            throw new NotImplementedException();
+        }
+
         public virtual int TransformBlock(byte[] inputBuffer, int inputOffset, int inputCount,
                                           byte[] outputBuffer, int outputOffset)
         {
-            throw new NotImplementedException();
+            Debug.Assert(inputCount % BlockSizeBytes == 0, "Input size not a multiple of block size.");
+
+            for(int i = 0; i < inputCount; i += BlockSizeBytes)
+                PerformRound(inputBuffer, i + inputOffset, outputBuffer, i + outputOffset);
+            return inputCount;
         }
 
         byte [] GetPaddedBlock(byte[] inputBuffer, int inputOffset, int inputCount)
