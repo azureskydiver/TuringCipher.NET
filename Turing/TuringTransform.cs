@@ -108,8 +108,7 @@ namespace AXFSoftware.Security.Cryptography
             throw new NotImplementedException();
         }
 
-        public virtual void PerformRound(byte[] inputBuffer, int inputOffset,
-                                         byte[] outputBuffer, int outputOffset)
+        public virtual void PerformRound(byte[] outputBuffer, int outputOffset)
         {
             throw new NotImplementedException();
         }
@@ -120,7 +119,11 @@ namespace AXFSoftware.Security.Cryptography
             Debug.Assert(inputCount % BlockSizeBytes == 0, "Input size not a multiple of block size.");
 
             for(int i = 0; i < inputCount; i += BlockSizeBytes)
-                PerformRound(inputBuffer, i + inputOffset, outputBuffer, i + outputOffset);
+                PerformRound(outputBuffer, i + outputOffset);
+
+            for (int i = 0; i < inputCount; i++)
+                outputBuffer[i + outputOffset] ^= inputBuffer[i + inputOffset];
+
             return inputCount;
         }
 
