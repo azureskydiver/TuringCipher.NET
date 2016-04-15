@@ -25,47 +25,40 @@ namespace AXFSoftware.Security.Cryptography
         public const int BlockSize = BlockSizeBytes * 8;
 
         bool _disposed = false;
-
         PaddingMode _padding;
+        ITuringCipher _turingCipher;
+        Queue<ArraySegment<byte>> _rounds = new Queue<ArraySegment<byte>>();
 
         public int InputBlockSize => BlockSize;
         public int OutputBlockSize => BlockSize;
         public bool CanTransformMultipleBlocks => true;
         public bool CanReuseTransform => false;
 
-        public TuringTransform(byte [] key, byte [] iv, PaddingMode paddingMode)
+        public TuringTransform(byte [] key, byte [] iv, PaddingMode paddingMode, ITuringCipher turingCipher)
         {
             if (key == null)
                 throw new ArgumentNullException(nameof(key));
             if (key.Length < KeySizeMinBytes || key.Length > KeySizeMaxBytes)
-            {
-                throw new ArgumentOutOfRangeException(nameof(key),
-                                                      $"Key length must be between {KeySizeMinBytes} and {KeySizeMaxBytes} bytes");
-            }
+                throw new ArgumentOutOfRangeException(nameof(key), $"Must be between {KeySizeMinBytes} and {KeySizeMaxBytes} bytes");
             if (key.Length % KeySizeSkipBytes != 0)
-            {
-                throw new ArgumentOutOfRangeException(nameof(key),
-                                                      $"Key length must be a multiple of {KeySizeSkipBytes} bytes");
-            }
+                throw new ArgumentOutOfRangeException(nameof(key), $"Must be a multiple of {KeySizeSkipBytes} bytes");
 
             if (iv == null)
                 throw new ArgumentNullException(nameof(iv));
             if (iv.Length < IVSizeMinBytes)
-            {
-                throw new ArgumentOutOfRangeException(nameof(iv),
-                                                      $"IV length must be at least {IVSizeMinBytes} bytes");
-            }
+                throw new ArgumentOutOfRangeException(nameof(iv), $"Must be at least {IVSizeMinBytes} bytes");
 
             if (key.Length + iv.Length > KeyIVMaxBytes)
-            {
-                throw new ArgumentOutOfRangeException(nameof(iv),
-                                                      $"Key and IV length must be less than {KeyIVMaxBytes} bytes");
-            }
+                throw new ArgumentOutOfRangeException(nameof(iv), $"Key and IV length must be less than {KeyIVMaxBytes} bytes");
 
-            if (_padding == PaddingMode.None)
+            if (paddingMode == PaddingMode.None)
                 throw new ArgumentOutOfRangeException(nameof(paddingMode), "Padding cannot be None");
 
+            if (turingCipher == null)
+                throw new ArgumentNullException(nameof(turingCipher));
+
             _padding = paddingMode;
+            _turingCipher = turingCipher;
 
             SetKey(key);
             SetIV(iv);
@@ -83,10 +76,15 @@ namespace AXFSoftware.Security.Cryptography
                 if (disposing)
                 {
                     // Dispose managed state (managed objects).
+                    _turingCipher?.Dispose();
+                    _rounds?.Clear();
                 }
 
                 // Free unmanaged resources (unmanaged objects)
+
                 // Set large fields to null.
+                _turingCipher = null;
+                _rounds = null;
 
                 _disposed = true;
             }
@@ -100,17 +98,22 @@ namespace AXFSoftware.Security.Cryptography
 
         protected virtual void SetKey(byte [] key)
         {
-            throw new NotImplementedException();
+            _turingCipher.SetKey(key);
         }
 
         protected virtual void SetIV(byte [] iv)
         {
-            throw new NotImplementedException();
+            _turingCipher.SetIV(iv);
         }
 
-        public virtual void PerformRound(byte[] outputBuffer, int outputOffset)
+        protected virtual ArraySegment<byte> GetNextRound()
         {
-            throw new NotImplementedException();
+            if (_rounds.Count == 0)
+            {
+                foreach (var round in _turingCipher.GetNextRounds())
+                    _rounds.Enqueue(round);
+            }
+            return _rounds.Dequeue();
         }
 
         void CheckInputParameters(byte[] inputBuffer, int inputOffset, int inputCount)
@@ -135,6 +138,7 @@ namespace AXFSoftware.Security.Cryptography
                 throw new ArgumentOutOfRangeException(nameof(inputCount), "Must be multiple of block size.");
             if (inputCount > outputBuffer.Length)
                 throw new ArgumentOutOfRangeException(nameof(inputCount), "Must not exceed size of output buffer");
+
             if (outputOffset < 0)
                 throw new ArgumentOutOfRangeException(nameof(outputOffset), "Must be offset into the output buffer");
             if (outputOffset > outputBuffer.Length)
@@ -143,10 +147,14 @@ namespace AXFSoftware.Security.Cryptography
                 throw new InvalidOperationException($"{nameof(outputOffset)} + {nameof(inputCount)} must not exceed size of output buffer");
 
             for (int i = 0; i < inputCount; i += BlockSizeBytes)
-                PerformRound(outputBuffer, i + outputOffset);
-
-            for (int i = 0; i < inputCount; i++)
-                outputBuffer[i + outputOffset] ^= inputBuffer[i + inputOffset];
+            {
+                var segment = GetNextRound();
+                byte [] pad = segment.Array;
+                int segmentOffset = segment.Offset;
+                int count = segment.Count;
+                while (count-- > 0)
+                    outputBuffer[outputOffset++] = (byte)(inputBuffer[inputOffset++] ^ pad[segmentOffset++]);
+            }
 
             return inputCount;
         }
