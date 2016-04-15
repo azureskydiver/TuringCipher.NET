@@ -113,12 +113,36 @@ namespace AXFSoftware.Security.Cryptography
             throw new NotImplementedException();
         }
 
-        public virtual int TransformBlock(byte[] inputBuffer, int inputOffset, int inputCount,
-                                          byte[] outputBuffer, int outputOffset)
+        void CheckInputParameters(byte[] inputBuffer, int inputOffset, int inputCount)
         {
-            Debug.Assert(inputCount % BlockSizeBytes == 0, "Input size not a multiple of block size.");
+            if (inputOffset < 0)
+                throw new ArgumentOutOfRangeException(nameof(inputOffset), "Must be offset into the input buffer");
+            if (inputOffset > inputBuffer.Length)
+                throw new ArgumentOutOfRangeException(nameof(inputOffset), "Must not exceed size of input buffer");
+            if (inputCount < 0)
+                throw new ArgumentOutOfRangeException(nameof(inputCount), "Must be greater than or equal to zero");
+            if (inputCount > inputBuffer.Length)
+                throw new ArgumentOutOfRangeException(nameof(inputCount), "Must not exceed size of input buffer");
+            if (inputOffset + inputCount > inputBuffer.Length)
+                throw new InvalidOperationException($"{nameof(inputOffset)} + {nameof(inputCount)} must not exceed size of input buffer");
+        }
 
-            for(int i = 0; i < inputCount; i += BlockSizeBytes)
+        public int TransformBlock(byte[] inputBuffer, int inputOffset, int inputCount,
+                                  byte[] outputBuffer, int outputOffset)
+        {
+            CheckInputParameters(inputBuffer, inputOffset, inputCount);
+            if (inputCount % BlockSize != 0)
+                throw new ArgumentOutOfRangeException(nameof(inputCount), "Must be multiple of block size.");
+            if (inputCount > outputBuffer.Length)
+                throw new ArgumentOutOfRangeException(nameof(inputCount), "Must not exceed size of output buffer");
+            if (outputOffset < 0)
+                throw new ArgumentOutOfRangeException(nameof(outputOffset), "Must be offset into the output buffer");
+            if (outputOffset > outputBuffer.Length)
+                throw new ArgumentOutOfRangeException(nameof(outputOffset), "Must not exceed size of output buffer");
+            if (outputOffset + inputCount > outputBuffer.Length)
+                throw new InvalidOperationException($"{nameof(outputOffset)} + {nameof(inputCount)} must not exceed size of output buffer");
+
+            for (int i = 0; i < inputCount; i += BlockSizeBytes)
                 PerformRound(outputBuffer, i + outputOffset);
 
             for (int i = 0; i < inputCount; i++)
@@ -166,6 +190,8 @@ namespace AXFSoftware.Security.Cryptography
 
         public byte[] TransformFinalBlock(byte[] inputBuffer, int inputOffset, int inputCount)
         {
+            CheckInputParameters(inputBuffer, inputOffset, inputCount);
+
             var padded = GetPaddedBlock(inputBuffer, inputOffset, inputCount);
             var block = new byte[BlockSizeBytes];
             TransformBlock(padded, 0, padded.Length, block, 0);
