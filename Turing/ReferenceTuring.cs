@@ -5,22 +5,21 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace AXFSoftware.Security.Cryptography
+namespace AXFSoftware.Security.Cryptography.Turing
 {
-    public class TuringFast : Turing
+    public class ReferenceTuring : Turing
     {
         protected override ICryptoTransform CreateTransform(byte[] rgbKey, byte[] rgbIV)
         {
-            return new TuringFastTransform(rgbKey, rgbIV, Padding);
+            return new ReferenceTuringTransform(rgbKey, rgbIV, Padding);
         }
     }
 
-    public class TuringFastTransform : TuringTransform
+    public class ReferenceTuringTransform : TuringTransform
     {
         bool _disposed = false;
-        Queue<ArraySegment<byte>> _rounds = new Queue<ArraySegment<byte>>();
 
-        public TuringFastTransform(byte[] key, byte[] iv, PaddingMode paddingMode)
+        public ReferenceTuringTransform(byte[] key, byte[] iv, PaddingMode paddingMode)
             : base(key, iv, paddingMode)
         {
         }
@@ -32,13 +31,11 @@ namespace AXFSoftware.Security.Cryptography
                 if (disposing)
                 {
                     // Dispose managed state (managed objects).
-                    _rounds?.Clear();
                 }
 
                 // Free unmanaged resources (unmanaged objects)
 
                 // Set large fields to null.
-                _rounds = null;
 
                 _disposed = true;
             }
@@ -48,12 +45,7 @@ namespace AXFSoftware.Security.Cryptography
 
         protected override ArraySegment<byte> GetNextRound()
         {
-            if (_rounds.Count == 0)
-            {
-                foreach (var round in GetNextRounds())
-                    _rounds.Enqueue(round);
-            }
-            return _rounds.Dequeue();
+            throw new NotImplementedException();
         }
 
         protected override void SetIV(byte[] iv)
@@ -62,11 +54,6 @@ namespace AXFSoftware.Security.Cryptography
         }
 
         protected override void SetKey(byte[] key)
-        {
-            throw new NotImplementedException();
-        }
-
-        IEnumerable<ArraySegment<byte>> GetNextRounds()
         {
             throw new NotImplementedException();
         }

@@ -6,7 +6,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace AXFSoftware.Security.Cryptography
+namespace AXFSoftware.Security.Cryptography.Turing
 {
     public abstract class TuringTransform : ICryptoTransform, IDisposable
     {

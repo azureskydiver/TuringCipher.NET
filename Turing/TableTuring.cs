@@ -5,21 +5,21 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace AXFSoftware.Security.Cryptography
+namespace AXFSoftware.Security.Cryptography.Turing
 {
-    public class TuringReference : Turing
+    public class TableTuring : Turing
     {
         protected override ICryptoTransform CreateTransform(byte[] rgbKey, byte[] rgbIV)
         {
-            return new TuringReferenceTransform(rgbKey, rgbIV, Padding);
+            return new TableTuringTransform(rgbKey, rgbIV, Padding);
         }
     }
 
-    public class TuringReferenceTransform : TuringTransform
+    public class TableTuringTransform : TuringTransform
     {
         bool _disposed = false;
 
-        public TuringReferenceTransform(byte[] key, byte[] iv, PaddingMode paddingMode)
+        public TableTuringTransform(byte [] key, byte [] iv, PaddingMode paddingMode)
             : base(key, iv, paddingMode)
         {
         }

@@ -7,8 +7,8 @@
     <ProjectGuid>{53B7D657-686D-4A4B-AB20-255A201620A2}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>AXFSoftware.Security.Cryptography</RootNamespace>
-    <AssemblyName>AXFSoftware.Security.Cryptography</AssemblyName>
+    <RootNamespace>AXFSoftware.Security.Cryptography.Turing</RootNamespace>
+    <AssemblyName>AXFSoftware.Security.Cryptography.Turing</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -42,8 +42,9 @@
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Turing.cs" />
-    <Compile Include="TuringReference.cs" />
-    <Compile Include="TuringTable.cs" />
+    <Compile Include="FastTuring.cs" />
+    <Compile Include="ReferenceTuring.cs" />
+    <Compile Include="TableTuring.cs" />
     <Compile Include="TuringTransform.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

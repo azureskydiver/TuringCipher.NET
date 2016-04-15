@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Security.Cryptography;
 
-namespace AXFSoftware.Security.Cryptography
+namespace AXFSoftware.Security.Cryptography.Turing
 {
     public abstract class Turing : SymmetricAlgorithm
     {
@@ -13,9 +13,10 @@ namespace AXFSoftware.Security.Cryptography
         static KeySizes[] s_legalBlockSizes = { new KeySizes(TuringTransform.BlockSize, TuringTransform.BlockSize, 0) };
         static Dictionary<string, Type> s_implementations = new Dictionary<string, Type>()
         {
-            ["Turing"] = typeof(TuringReference),
-            ["TuringReference"] = typeof(TuringReference),
-            ["TuringTable"] = typeof(TuringTable),
+            ["FastTuring"] = typeof(FastTuring),
+            ["ReferenceTuring"] = typeof(ReferenceTuring),
+            ["TableTuring"] = typeof(TableTuring),
+            ["Turing"] = typeof(ReferenceTuring),
         };
 
         Lazy<RandomNumberGenerator> _rng = new Lazy<RandomNumberGenerator>(RandomNumberGenerator.Create);
