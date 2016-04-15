@@ -40,7 +40,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ITuringCipher.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Turing.cs" />
     <Compile Include="TuringReference.cs" />

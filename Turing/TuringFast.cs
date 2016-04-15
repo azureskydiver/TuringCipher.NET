@@ -7,19 +7,20 @@ using System.Threading.Tasks;
 
 namespace AXFSoftware.Security.Cryptography
 {
-    public class TuringReference : Turing
+    public class TuringFast : Turing
     {
         protected override ICryptoTransform CreateTransform(byte[] rgbKey, byte[] rgbIV)
         {
-            return new TuringReferenceTransform(rgbKey, rgbIV, Padding);
+            return new TuringFastTransform(rgbKey, rgbIV, Padding);
         }
     }
 
-    public class TuringReferenceTransform : TuringTransform
+    public class TuringFastTransform : TuringTransform
     {
         bool _disposed = false;
+        Queue<ArraySegment<byte>> _rounds = new Queue<ArraySegment<byte>>();
 
-        public TuringReferenceTransform(byte[] key, byte[] iv, PaddingMode paddingMode)
+        public TuringFastTransform(byte[] key, byte[] iv, PaddingMode paddingMode)
             : base(key, iv, paddingMode)
         {
         }
@@ -31,11 +32,13 @@ namespace AXFSoftware.Security.Cryptography
                 if (disposing)
                 {
                     // Dispose managed state (managed objects).
+                    _rounds?.Clear();
                 }
 
                 // Free unmanaged resources (unmanaged objects)
 
                 // Set large fields to null.
+                _rounds = null;
 
                 _disposed = true;
             }
@@ -45,7 +48,12 @@ namespace AXFSoftware.Security.Cryptography
 
         protected override ArraySegment<byte> GetNextRound()
         {
-            throw new NotImplementedException();
+            if (_rounds.Count == 0)
+            {
+                foreach (var round in GetNextRounds())
+                    _rounds.Enqueue(round);
+            }
+            return _rounds.Dequeue();
         }
 
         protected override void SetIV(byte[] iv)
@@ -54,6 +62,11 @@ namespace AXFSoftware.Security.Cryptography
         }
 
         protected override void SetKey(byte[] key)
+        {
+            throw new NotImplementedException();
+        }
+
+        IEnumerable<ArraySegment<byte>> GetNextRounds()
         {
             throw new NotImplementedException();
         }
