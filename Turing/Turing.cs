@@ -9,9 +9,9 @@ namespace AXFSoftware.Security.Cryptography.Turing
 {
     public abstract class Turing : SymmetricAlgorithm
     {
-        static KeySizes[] s_legalKeySizes = { new KeySizes(TuringTransform.KeySizeMinBits, TuringTransform.KeySizeMaxBits, TuringTransform.KeySizeSkipBits) };
-        static KeySizes[] s_legalBlockSizes = { new KeySizes(TuringTransform.BlockSize, TuringTransform.BlockSize, 0) };
-        static Dictionary<string, Type> s_implementations = new Dictionary<string, Type>()
+        static readonly KeySizes[] s_legalKeySizes = { new KeySizes(TuringTransform.KeySizeMinBits, TuringTransform.KeySizeMaxBits, TuringTransform.KeySizeSkipBits) };
+        static readonly KeySizes[] s_legalBlockSizes = { new KeySizes(TuringTransform.BlockSize, TuringTransform.BlockSize, 0) };
+        static readonly Dictionary<string, Type> s_implementations = new Dictionary<string, Type>()
         {
             ["FastTuring"] = typeof(FastTuring),
             ["ReferenceTuring"] = typeof(ReferenceTuring),

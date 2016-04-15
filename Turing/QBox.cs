@@ -20,7 +20,7 @@ namespace AXFSoftware.Security.Cryptography.Turing
         /// Information Systems Research Centre, Queensland University of 
         /// Technology, 1999.
         /// </remarks>
-        protected readonly uint [] QBox = 
+        protected static readonly uint [] QBox = 
         {
             0x1faa1887,   0x4e5e435c,   0x9165c042,   0x250e6ef4,
             0x5957ee20,   0xd484fed3,   0xa666c502,   0x7e54e8ae,

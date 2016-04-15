@@ -24,7 +24,7 @@ namespace AXFSoftware.Security.Cryptography.Turing
         /// points (ie. Sbox[x] != x for all x).
         /// </remarks>
 
-        protected readonly byte [] SBox =
+        protected static readonly byte [] SBox =
         {
             0x61, 0x51, 0xeb, 0x19, 0xb9, 0x5d, 0x60, 0x38,
             0x7c, 0xb2, 0x06, 0x12, 0xc4, 0x5b, 0x16, 0x3b,
