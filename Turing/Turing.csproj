@@ -40,7 +40,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="MultiplicationTable.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="QBox.cs" />
+    <Compile Include="SBox.cs" />
     <Compile Include="Turing.cs" />
     <Compile Include="FastTuring.cs" />
     <Compile Include="ReferenceTuring.cs" />

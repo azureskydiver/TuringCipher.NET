@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace AXFSoftware.Security.Cryptography.Turing
 {
-    public abstract class TuringTransform : ICryptoTransform, IDisposable
+    public abstract partial class TuringTransform : ICryptoTransform, IDisposable
     {
         public const int KeySizeMinBytes = 4;
         public const int KeySizeMinBits = KeySizeMinBytes * 8;
