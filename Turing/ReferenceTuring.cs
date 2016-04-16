@@ -43,17 +43,12 @@ namespace AXFSoftware.Security.Cryptography.Turing
             base.Dispose(disposing);
         }
 
-        protected override ArraySegment<byte> GetNextRound()
-        {
-            throw new NotImplementedException();
-        }
-
-        protected override void SetIV(byte[] iv)
-        {
-            throw new NotImplementedException();
-        }
-
         protected override void SetKey(byte[] key)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override ArraySegment<byte> GetNextRound()
         {
             throw new NotImplementedException();
         }

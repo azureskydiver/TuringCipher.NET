@@ -15,7 +15,7 @@ namespace AXFSoftware.Security.Cryptography.Turing
         }
     }
 
-    public class FastTuringTransform : TuringTransform
+    public class FastTuringTransform : TableTuringTransform
     {
         bool _disposed = false;
         Queue<ArraySegment<byte>> _rounds = new Queue<ArraySegment<byte>>();
@@ -54,16 +54,6 @@ namespace AXFSoftware.Security.Cryptography.Turing
                     _rounds.Enqueue(round);
             }
             return _rounds.Dequeue();
-        }
-
-        protected override void SetIV(byte[] iv)
-        {
-            throw new NotImplementedException();
-        }
-
-        protected override void SetKey(byte[] key)
-        {
-            throw new NotImplementedException();
         }
 
         IEnumerable<ArraySegment<byte>> GetNextRounds()
