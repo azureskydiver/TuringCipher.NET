@@ -18,7 +18,7 @@ namespace AXFSoftware.Security.Cryptography.Turing
     public class TableTuringTransform : ReferenceTuringTransform
     {
         bool _disposed = false;
-        uint[][] _keyedSBox = null;
+        protected uint[][] _keyedSBox = null;
 
         public TableTuringTransform(byte [] key, byte [] iv, PaddingMode paddingMode)
             : base(key, iv, paddingMode)

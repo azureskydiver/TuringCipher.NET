@@ -237,7 +237,7 @@ namespace AXFSoftware.Security.Cryptography.Turing
             a += _register[14]; b += _register[12]; c += _register[8];  d += _register[1];  e += _register[0];
             StepRegister();
 
-            byte[] buffer = new byte[20];
+            byte[] buffer = new byte[BlockSizeBytes];
             ConvertWordToBytes(a, buffer, 0);
             ConvertWordToBytes(b, buffer, 4);
             ConvertWordToBytes(c, buffer, 8);
