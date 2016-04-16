@@ -93,17 +93,32 @@ namespace AXFSoftware.Security.Cryptography.Turing
 
         protected uint ConvertBytesToWord(byte [] data, int offset)
         {
-            throw new NotImplementedException();
+            uint word = data[offset++];
+            word <<= 8;
+            word |= data[offset++];
+            word <<= 8;
+            word |= data[offset++];
+            word <<= 8;
+            word |= data[offset++];
+            return word;
         }
 
-        protected byte [] ConvertWordToBytes(uint word)
+        protected void ConvertWordToBytes(uint word, byte [] data, int offset)
         {
-            throw new NotImplementedException();
+            offset += 3;
+            data[offset--] = (byte)(word & 0xFF);
+            word >>= 8;
+            data[offset--] = (byte)(word & 0xFF);
+            word >>= 8;
+            data[offset--] = (byte)(word & 0xFF);
+            word >>= 8;
+            data[offset--] = (byte)(word & 0xFF);
+            word >>= 8;
         }
 
         protected byte GetByteFromWord(uint word, int position)
         {
-            throw new NotImplementedException();
+            return (byte)((word >> (24 - 8 * position)) & 0xFF);
         }
 
         protected uint RotateLeft(uint word, int rotation)
@@ -112,6 +127,19 @@ namespace AXFSoftware.Security.Cryptography.Turing
             if (rotation != 0)
                 word = (word << rotation) | (word >> (32 - rotation));
             return word;
+        }
+
+        protected void StepRegister()
+        {
+            uint w;
+            w =  _register[15] ^ 
+                 _register[ 4] ^ 
+                (_register[ 0] << 8) ^ 
+                MultiplicationTable[(_register[0] >> 24) & 0xFF];
+
+            for (int i = 1; i < _register.Length; i++)
+                _register[i - 1] = _register[i];
+            _register[_register.Length - 1] = w;
         }
 
         /// <summary>
@@ -153,17 +181,19 @@ namespace AXFSoftware.Security.Cryptography.Turing
         /// trail allowed by the PHT.
         /// </para>
         /// </remarks>
-        protected uint SFunction(uint w, int rotation)
+        protected virtual uint KeyedS(uint w, int rotation)
         {
             w = RotateLeft(w, rotation);
 
-            byte[] b = ConvertWordToBytes(w);
-            uint[] ws = new uint[4];
+            byte[] b = new byte[4];
+            ConvertWordToBytes(w, b, 0);
 
+            uint[] ws = new uint[4];
             ws[0] = 0;
             ws[1] = 0;
             ws[2] = 0;
             ws[3] = 0;
+
             for(int i = 0; i < _key.Length; i++)
             {
                 b[0] = SBox[GetByteFromWord(_key[i], 0) ^ b[0]]; ws[0] ^= RotateLeft(QBox[b[0]], i + 0);
@@ -218,7 +248,7 @@ namespace AXFSoftware.Security.Cryptography.Turing
             _register[i++] = lengthDependentWord;
 
             for (int j = 0; i < _register.Length; i++, j++)
-                _register[i] = SFunction(_register[j] + _register[i - 1], 0);
+                _register[i] = KeyedS(_register[j] + _register[i - 1], 0);
 
             PseudoHadamardTransform(_register);
         }
