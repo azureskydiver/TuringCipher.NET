@@ -15,7 +15,7 @@ namespace AXFSoftware.Security.Cryptography.Turing
         }
     }
 
-    public class TableTuringTransform : TuringTransform
+    public class TableTuringTransform : ReferenceTuringTransform
     {
         bool _disposed = false;
 
@@ -44,11 +44,6 @@ namespace AXFSoftware.Security.Cryptography.Turing
         }
 
         protected override void SetKey(byte[] key)
-        {
-            throw new NotImplementedException();
-        }
-
-        protected override ArraySegment<byte> GetNextRound()
         {
             throw new NotImplementedException();
         }
