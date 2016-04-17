@@ -30,6 +30,7 @@ namespace AXFSoftware.Security.Cryptography.Turing
         {
             LegalKeySizesValue = s_legalKeySizes;
             LegalBlockSizesValue = s_legalBlockSizes;
+            BlockSizeValue = TableTuringTransform.BlockSizeBytes;
         }
 
         public static void Register()
@@ -54,7 +55,7 @@ namespace AXFSoftware.Security.Cryptography.Turing
 
         byte [] GetRandomBytes(int size)
         {
-            var data = new byte[KeySize / 8];
+            var data = new byte[size];
             SecureRandom.GetBytes(data);
             return data;
         }
@@ -72,7 +73,7 @@ namespace AXFSoftware.Security.Cryptography.Turing
             if (Key == null || KeySize <= 0)
                 throw new InvalidOperationException("Failed to find a key.");
 
-            IV = GetRandomBytes((TuringTransform.KeySizeMaxBits - KeySize) / 8);
+            IVValue = GetRandomBytes((TuringTransform.KeyIVMaxBits - KeySize) / 8);
         }
 
         public override ICryptoTransform CreateEncryptor(byte[] rgbKey, byte[] rgbIV)
