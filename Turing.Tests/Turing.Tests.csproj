@@ -8,8 +8,8 @@
     <ProjectGuid>{FAC8869B-8415-4F7C-8871-27DE5379C57A}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>AXFSoftware.Security.Cryptography.Tests</RootNamespace>
-    <AssemblyName>AXFSoftware.Security.Cryptography.Tests</AssemblyName>
+    <RootNamespace>AXFSoftware.Security.Cryptography.Turing.Tests</RootNamespace>
+    <AssemblyName>AXFSoftware.Security.Cryptography.Turing.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
@@ -60,10 +60,23 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CorrectnessChecks.cs" />
+    <Compile Include="Fast.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Reference.cs" />
+    <Compile Include="Table.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Turing\Turing.csproj">
+      <Project>{53b7d657-686d-4a4b-ab20-255a201620a2}</Project>
+      <Name>Turing</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

@@ -31,3 +31,6 @@ using System.Runtime.InteropServices;
 // [assembly: AssemblyVersion("1.0.*")]
 [assembly: AssemblyVersion("1.0.0.0")]
 [assembly: AssemblyFileVersion("1.0.0.0")]
+[assembly: InternalsVisibleTo("Turing.Tests.Tests")]
+[assembly: InternalsVisibleTo("AXFSoftware.Security.Cryptography.Turing.Tests.Explorables")]
+
