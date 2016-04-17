@@ -72,10 +72,10 @@ namespace AXFSoftware.Security.Cryptography.Turing
             uint mask = 0xFFFFFF00;
             mask = RotateLeft(mask, shift);
             
-            for(byte j = 0; j <= 255; j++)
+            for(int j = 0; j < 256; j++)
             {
                 uint w = 0;
-                byte k = j;
+                byte k = (byte)j;
                 for (int i = 0; i < _key.Length; i++)
                 {
                     k = SBox[GetByteFromWord(_key[i], position) ^ k];
