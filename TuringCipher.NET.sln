@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Turing", "Turing\Turing.csp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Turing.Tests", "Turing.Tests\Turing.Tests.csproj", "{FAC8869B-8415-4F7C-8871-27DE5379C57A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Turing.Perf", "Turing.Perf\Turing.Perf.csproj", "{DC18C6F2-75B8-4183-8840-ACD70136222A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{FAC8869B-8415-4F7C-8871-27DE5379C57A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FAC8869B-8415-4F7C-8871-27DE5379C57A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FAC8869B-8415-4F7C-8871-27DE5379C57A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DC18C6F2-75B8-4183-8840-ACD70136222A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DC18C6F2-75B8-4183-8840-ACD70136222A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DC18C6F2-75B8-4183-8840-ACD70136222A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DC18C6F2-75B8-4183-8840-ACD70136222A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
