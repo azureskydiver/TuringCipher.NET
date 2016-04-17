@@ -89,12 +89,12 @@ namespace AXFSoftware.Security.Cryptography.Turing
 			        c += _register[RegisterOffset(z + 4, 8)];
 					    d += _register[RegisterOffset(z + 4, 1)];
 						    e += _register[RegisterOffset(z + 4, 0)];
+            StepRegister(z + 4);
             ConvertWordToBytes(a, buffer, offset);
 		        ConvertWordToBytes(b, buffer, offset + 4);
 			            ConvertWordToBytes(c, buffer, offset + 8);
 					        ConvertWordToBytes(d, buffer, offset + 12);
 						            ConvertWordToBytes(e, buffer, offset + 16);
-            StepRegister(z + 4);
 
             return new ArraySegment<byte>(buffer, offset, BlockSizeBytes);
         }
