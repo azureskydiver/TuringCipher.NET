@@ -16,8 +16,6 @@ namespace AXFSoftware.Security.Cryptography.Turing
         public const int KeySizeMaxBits = KeySizeMaxBytes * 8;
         public const int KeySizeSkipBytes = 4;
         public const int KeySizeSkipBits = KeySizeSkipBytes * 8;
-        public const int IVSizeMinBytes = 4;
-        public const int IVSizeMinBits = IVSizeMinBytes * 8;
         public const int KeyIVMaxBytes = 48;
         public const int KeyIVMaxBits = KeyIVMaxBytes * 8;
         public const int BlockSizeBytes = 20;
@@ -41,9 +39,7 @@ namespace AXFSoftware.Security.Cryptography.Turing
                 throw new ArgumentOutOfRangeException(nameof(key), $"Must be a multiple of {KeySizeSkipBytes} bytes");
 
             if (iv == null)
-                throw new ArgumentNullException(nameof(iv));
-            if (iv.Length < IVSizeMinBytes)
-                throw new ArgumentOutOfRangeException(nameof(iv), $"Must be at least {IVSizeMinBytes} bytes");
+                iv = new byte[0];
 
             if (key.Length + iv.Length > KeyIVMaxBytes)
                 throw new ArgumentOutOfRangeException(nameof(iv), $"Key and IV length must be less than {KeyIVMaxBytes} bytes");
@@ -107,7 +103,7 @@ namespace AXFSoftware.Security.Cryptography.Turing
                                   byte[] outputBuffer, int outputOffset)
         {
             CheckInputParameters(inputBuffer, inputOffset, inputCount);
-            if (inputCount % BlockSize != 0)
+            if (inputCount % BlockSizeBytes != 0)
                 throw new ArgumentOutOfRangeException(nameof(inputCount), "Must be multiple of block size.");
             if (inputCount > outputBuffer.Length)
                 throw new ArgumentOutOfRangeException(nameof(inputCount), "Must not exceed size of output buffer");
