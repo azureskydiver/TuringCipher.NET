@@ -18,9 +18,11 @@ namespace AXFSoftware.Security.Cryptography.Turing
 
     public class ReferenceTuringTransform : TuringTransform
     {
+        protected const int RegisterLength = 17;
+
         bool _disposed = false;
         protected uint[] _key;
-        protected uint[] _register = new uint[17];
+        protected uint[] _register = new uint[RegisterLength];
 
         public ReferenceTuringTransform(byte[] key, byte[] iv, PaddingMode paddingMode)
             : base(key, iv, paddingMode)
@@ -94,9 +96,9 @@ namespace AXFSoftware.Security.Cryptography.Turing
                 (_register[0] << 8) ^
                 MultiplicationTable[(_register[0] >> 24) & 0xFF];
 
-            for (int i = 1; i < _register.Length; i++)
+            for (int i = 1; i < RegisterLength; i++)
                 _register[i - 1] = _register[i];
-            _register[_register.Length - 1] = w;
+            _register[RegisterLength - 1] = w;
         }
 
         /// <summary>
@@ -216,7 +218,7 @@ namespace AXFSoftware.Security.Cryptography.Turing
             lengthDependentWord |= 0x01020300;
             _register[i++] = lengthDependentWord;
 
-            for (int j = 0; i < _register.Length; i++, j++)
+            for (int j = 0; i < RegisterLength; i++, j++)
                 _register[i] = KeyedS(_register[j] + _register[i - 1], 0);
 
             PseudoHadamardTransform(_register);

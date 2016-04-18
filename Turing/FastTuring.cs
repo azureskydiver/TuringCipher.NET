@@ -57,7 +57,7 @@ namespace AXFSoftware.Security.Cryptography.Turing
 
         int RegisterOffset(int zero, int offset)
         {
-            return (zero + offset) % base._register.Length;
+            return (zero + offset) % RegisterLength;
         }
 
         protected override uint KeyedS(uint w, int b)
@@ -101,8 +101,8 @@ namespace AXFSoftware.Security.Cryptography.Turing
 
         IEnumerable<ArraySegment<byte>> GetNextRounds()
         {
-            var rounds = new List<ArraySegment<byte>>(base._register.Length);
-            byte[] buffer = new byte[base._register.Length * BlockSizeBytes];
+            var rounds = new List<ArraySegment<byte>>(RegisterLength);
+            byte[] buffer = new byte[RegisterLength * BlockSizeBytes];
 
             rounds.Add(DoRound( 0, buffer,   0));
             rounds.Add(DoRound( 5, buffer,  20));
@@ -122,7 +122,7 @@ namespace AXFSoftware.Security.Cryptography.Turing
             rounds.Add(DoRound( 7, buffer, 300));
             rounds.Add(DoRound(12, buffer, 320));
 
-            Debug.Assert(rounds.Count == base._register.Length);
+            Debug.Assert(rounds.Count == RegisterLength);
             return rounds;
         }
 
