@@ -49,7 +49,7 @@ namespace AXFSoftware.Security.Cryptography.Turing
 
         void StepRegister(int z)
         {
-            int z0 = RegisterOffset(z, 0);
+            int z0 = z % RegisterLength;
             uint r0 = _register[z0];
 
             _register[z0] = _register[RegisterOffset(z, 15)] ^ 
@@ -95,7 +95,7 @@ namespace AXFSoftware.Security.Cryptography.Turing
                    _keyedSBox[3][word.Byte2];
         }
 
-        ArraySegment<byte> DoRound(int z, byte [] buffer, int offset)
+        void DoRound(int z, byte [] buffer, int offset)
         {
             uint a, b, c, d, e;
 
@@ -122,43 +122,39 @@ namespace AXFSoftware.Security.Cryptography.Turing
 			            ConvertWordToBytes(c, buffer, offset + 8);
 					        ConvertWordToBytes(d, buffer, offset + 12);
 						            ConvertWordToBytes(e, buffer, offset + 16);
-
-            return new ArraySegment<byte>(buffer, offset, BlockSizeBytes);
         }
 
-        IEnumerable<ArraySegment<byte>> GetNextRounds()
+        byte [] GetNextRounds()
         {
-            var rounds = new List<ArraySegment<byte>>(RegisterLength);
             byte[] buffer = new byte[RegisterLength * BlockSizeBytes];
 
-            rounds.Add(DoRound( 0, buffer,   0));
-            rounds.Add(DoRound( 5, buffer,  20));
-            rounds.Add(DoRound(10, buffer,  40));
-            rounds.Add(DoRound(15, buffer,  60));
-            rounds.Add(DoRound( 3, buffer,  80));
-            rounds.Add(DoRound( 8, buffer, 100));
-            rounds.Add(DoRound(13, buffer, 120));
-            rounds.Add(DoRound( 1, buffer, 140));
-            rounds.Add(DoRound( 6, buffer, 160));
-            rounds.Add(DoRound(11, buffer, 180));
-            rounds.Add(DoRound(16, buffer, 200));
-            rounds.Add(DoRound( 4, buffer, 220));
-            rounds.Add(DoRound( 9, buffer, 240));
-            rounds.Add(DoRound(14, buffer, 260));
-            rounds.Add(DoRound( 2, buffer, 280));
-            rounds.Add(DoRound( 7, buffer, 300));
-            rounds.Add(DoRound(12, buffer, 320));
-
-            Debug.Assert(rounds.Count == RegisterLength);
-            return rounds;
+            DoRound( 0, buffer,   0);
+            DoRound( 5, buffer,  20);
+            DoRound(10, buffer,  40);
+            DoRound(15, buffer,  60);
+            DoRound( 3, buffer,  80);
+            DoRound( 8, buffer, 100);
+            DoRound(13, buffer, 120);
+            DoRound( 1, buffer, 140);
+            DoRound( 6, buffer, 160);
+            DoRound(11, buffer, 180);
+            DoRound(16, buffer, 200);
+            DoRound( 4, buffer, 220);
+            DoRound( 9, buffer, 240);
+            DoRound(14, buffer, 260);
+            DoRound( 2, buffer, 280);
+            DoRound( 7, buffer, 300);
+            DoRound(12, buffer, 320);
+            return buffer;
         }
 
         protected override ArraySegment<byte> GetNextRound()
         {
             if (_rounds.Count == 0)
             {
-                foreach (var round in GetNextRounds())
-                    _rounds.Enqueue(round);
+                byte[] buffer = GetNextRounds();
+                for (int offset = 0; offset < buffer.Length; offset += BlockSizeBytes)
+                    _rounds.Enqueue(new ArraySegment<byte>(buffer, offset, BlockSizeBytes));
             }
             return _rounds.Dequeue();
         }
