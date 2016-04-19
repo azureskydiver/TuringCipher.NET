@@ -11,7 +11,7 @@ namespace PerfTests
 {
     class Program
     {
-        const int Size = 10000000;
+        const int Size = ((10000000 / TuringTransform.BlockSizeBytes) + 1) * TuringTransform.BlockSizeBytes;
         const int NumberOfRuns = 5;
 
         Tuple<TimeSpan,int> DoRun(ICryptoTransform transform, byte [] clear, byte [] cipher)
@@ -19,9 +19,7 @@ namespace PerfTests
             var stopwatch = new Stopwatch();
 
             stopwatch.Start();
-            int count = 0;
-            while (count < Size)
-                count += transform.TransformBlock(clear, 0, transform.InputBlockSize / 8, cipher, 0);
+            int count = transform.TransformBlock(clear, 0, Size, cipher, 0);
             stopwatch.Stop();
             return Tuple.Create(stopwatch.Elapsed, count);
         }
@@ -39,7 +37,7 @@ namespace PerfTests
             Console.WriteLine($"{name}: ");
 
             turing.Key = Encoding.ASCII.GetBytes("test key 128bits");
-            byte[] clear = new byte[340];
+            byte[] clear = new byte[Size];
             byte[] cipher = new byte[clear.Length];
             TimeSpan totalTime = new TimeSpan(0);
             int totalSize = 0;
