@@ -90,10 +90,14 @@ namespace AXFSoftware.Security.Cryptography.Turing
         protected override uint KeyedS(uint w, int rotation)
         {
             w = RotateLeft(w, rotation);
-            return _keyedSBox[0][GetByteFromWord(w, 0)] ^ 
-                   _keyedSBox[1][GetByteFromWord(w, 1)] ^ 
-                   _keyedSBox[2][GetByteFromWord(w, 2)] ^ 
-                   _keyedSBox[3][GetByteFromWord(w, 3)];
+            uint x = _keyedSBox[3][w & 0xFF];
+            w >>= 8;
+            x ^= _keyedSBox[2][w & 0xFF];
+            w >>= 8;
+            x ^= _keyedSBox[1][w & 0xFF];
+            w >>= 8;
+            x ^= _keyedSBox[0][w & 0xFF];
+            return x;
         }
     }
 }
