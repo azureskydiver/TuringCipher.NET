@@ -29,7 +29,6 @@ namespace AXFSoftware.Security.Cryptography.Turing
         }
 
         bool _disposed = false;
-        Queue<ArraySegment<byte>> _rounds = new Queue<ArraySegment<byte>>();
         byte[] _buffer = new byte[RegisterLength * BlockSizeBytes];
 
         public FastTuringTransform(byte[] key, byte[] iv, PaddingMode paddingMode)
@@ -44,13 +43,11 @@ namespace AXFSoftware.Security.Cryptography.Turing
                 if (disposing)
                 {
                     // Dispose managed state (managed objects).
-                    _rounds?.Clear();
                 }
 
                 // Free unmanaged resources (unmanaged objects)
 
                 // Set large fields to null.
-                _rounds = null;
                 _buffer = null;
 
                 _disposed = true;
@@ -159,13 +156,8 @@ namespace AXFSoftware.Security.Cryptography.Turing
 
         protected override ArraySegment<byte> GetNextRound()
         {
-            if (_rounds.Count == 0)
-            {
-                GetNextRounds();
-                for (int offset = 0; offset < _buffer.Length; offset += BlockSizeBytes)
-                    _rounds.Enqueue(new ArraySegment<byte>(_buffer, offset, BlockSizeBytes));
-            }
-            return _rounds.Dequeue();
+            GetNextRounds();
+            return new ArraySegment<byte>(_buffer);
         }
     }
 }
