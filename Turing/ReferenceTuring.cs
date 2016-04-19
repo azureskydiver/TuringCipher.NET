@@ -87,10 +87,7 @@ namespace AXFSoftware.Security.Cryptography.Turing
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected static uint RotateLeft(uint word, int rotation)
         {
-            Debug.Assert(rotation >= 0);
-            if (rotation != 0)
-                word = (word << rotation) | (word >> (32 - rotation));
-            return word;
+            return (word << rotation) | ((word >> ~rotation) >> 1);
         }
 
         protected void StepRegister()
