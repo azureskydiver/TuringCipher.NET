@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
@@ -50,7 +51,8 @@ namespace AXFSoftware.Security.Cryptography.Turing
             base.Dispose(disposing);
         }
 
-        protected uint ConvertBytesToWord(byte[] data, int offset)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected static uint ConvertBytesToWord(byte[] data, int offset)
         {
             uint word = data[offset++];
             word <<= 8;
@@ -62,7 +64,8 @@ namespace AXFSoftware.Security.Cryptography.Turing
             return word;
         }
 
-        protected void ConvertWordToBytes(uint word, byte[] data, int offset)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected static void ConvertWordToBytes(uint word, byte[] data, int offset)
         {
             offset += 3;
             data[offset--] = (byte)(word & 0xFF);
@@ -75,12 +78,14 @@ namespace AXFSoftware.Security.Cryptography.Turing
             word >>= 8;
         }
 
-        protected byte GetByteFromWord(uint word, int position)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected static byte GetByteFromWord(uint word, int position)
         {
             return (byte)((word >> (24 - 8 * position)) & 0xFF);
         }
 
-        protected uint RotateLeft(uint word, int rotation)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected static uint RotateLeft(uint word, int rotation)
         {
             Debug.Assert(rotation >= 0);
             if (rotation != 0)
@@ -169,7 +174,8 @@ namespace AXFSoftware.Security.Cryptography.Turing
             return w;
         }
 
-        protected void PseudoHadamardTransform(ref uint a, ref uint b, ref uint c, ref uint d, ref uint e)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected static void PseudoHadamardTransform(ref uint a, ref uint b, ref uint c, ref uint d, ref uint e)
         {
             e += a + b + c + d;
             a += e;
@@ -178,7 +184,8 @@ namespace AXFSoftware.Security.Cryptography.Turing
             d += e;
         }
 
-        protected void PseudoHadamardTransform(uint[] words)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected static void PseudoHadamardTransform(uint[] words)
         {
             int lastIndex = words.Length - 1;
             uint sum = 0;
