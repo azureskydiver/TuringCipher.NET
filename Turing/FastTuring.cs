@@ -20,6 +20,8 @@ namespace AXFSoftware.Security.Cryptography.Turing
     {
         bool _disposed = false;
         Queue<ArraySegment<byte>> _rounds = new Queue<ArraySegment<byte>>();
+        byte[] _buffer = new byte[RegisterLength * BlockSizeBytes];
+
 
         public FastTuringTransform(byte[] key, byte[] iv, PaddingMode paddingMode)
             : base(key, iv, paddingMode)
@@ -40,6 +42,7 @@ namespace AXFSoftware.Security.Cryptography.Turing
 
                 // Set large fields to null.
                 _rounds = null;
+                _buffer = null;
 
                 _disposed = true;
             }
@@ -95,7 +98,7 @@ namespace AXFSoftware.Security.Cryptography.Turing
                    _keyedSBox[3][word.Byte2];
         }
 
-        void DoRound(int z, byte [] buffer, int offset)
+        void DoRound(int z, int offset)
         {
             uint a, b, c, d, e;
 
@@ -117,44 +120,41 @@ namespace AXFSoftware.Security.Cryptography.Turing
 					    d += _register[RegisterOffset(z + 4, 1)];
 						    e += _register[RegisterOffset(z + 4, 0)];
             StepRegister(z + 4);
-            ConvertWordToBytes(a, buffer, offset);
-		        ConvertWordToBytes(b, buffer, offset + 4);
-			            ConvertWordToBytes(c, buffer, offset + 8);
-					        ConvertWordToBytes(d, buffer, offset + 12);
-						            ConvertWordToBytes(e, buffer, offset + 16);
+            ConvertWordToBytes(a, _buffer, offset);
+		        ConvertWordToBytes(b, _buffer, offset + 4);
+			            ConvertWordToBytes(c, _buffer, offset + 8);
+					        ConvertWordToBytes(d, _buffer, offset + 12);
+						            ConvertWordToBytes(e, _buffer, offset + 16);
         }
 
-        byte [] GetNextRounds()
+        void GetNextRounds()
         {
-            byte[] buffer = new byte[RegisterLength * BlockSizeBytes];
-
-            DoRound( 0, buffer,   0);
-            DoRound( 5, buffer,  20);
-            DoRound(10, buffer,  40);
-            DoRound(15, buffer,  60);
-            DoRound( 3, buffer,  80);
-            DoRound( 8, buffer, 100);
-            DoRound(13, buffer, 120);
-            DoRound( 1, buffer, 140);
-            DoRound( 6, buffer, 160);
-            DoRound(11, buffer, 180);
-            DoRound(16, buffer, 200);
-            DoRound( 4, buffer, 220);
-            DoRound( 9, buffer, 240);
-            DoRound(14, buffer, 260);
-            DoRound( 2, buffer, 280);
-            DoRound( 7, buffer, 300);
-            DoRound(12, buffer, 320);
-            return buffer;
+            DoRound( 0,   0);
+            DoRound( 5,  20);
+            DoRound(10,  40);
+            DoRound(15,  60);
+            DoRound( 3,  80);
+            DoRound( 8, 100);
+            DoRound(13, 120);
+            DoRound( 1, 140);
+            DoRound( 6, 160);
+            DoRound(11, 180);
+            DoRound(16, 200);
+            DoRound( 4, 220);
+            DoRound( 9, 240);
+            DoRound(14, 260);
+            DoRound( 2, 280);
+            DoRound( 7, 300);
+            DoRound(12, 320);
         }
 
         protected override ArraySegment<byte> GetNextRound()
         {
             if (_rounds.Count == 0)
             {
-                byte[] buffer = GetNextRounds();
-                for (int offset = 0; offset < buffer.Length; offset += BlockSizeBytes)
-                    _rounds.Enqueue(new ArraySegment<byte>(buffer, offset, BlockSizeBytes));
+                GetNextRounds();
+                for (int offset = 0; offset < _buffer.Length; offset += BlockSizeBytes)
+                    _rounds.Enqueue(new ArraySegment<byte>(_buffer, offset, BlockSizeBytes));
             }
             return _rounds.Dequeue();
         }
