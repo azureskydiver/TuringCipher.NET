@@ -96,9 +96,14 @@ namespace AXFSoftware.Security.Cryptography.Turing
             return new Word() { Value = value };
         }
 
-        public static explicit operator uint(Word w)
+        public static implicit operator uint(Word w)
         {
             return w.Value;
+        }
+
+        public static explicit operator int(Word w)
+        {
+            return (int) w.Value;
         }
 
         public static bool operator ==(Word a, Word b)
