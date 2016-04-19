@@ -49,10 +49,13 @@ namespace AXFSoftware.Security.Cryptography.Turing
 
         void StepRegister(int z)
         {
-            _register[RegisterOffset(z, 0)] = _register[RegisterOffset(z, 15)] ^ 
-                                              _register[RegisterOffset(z, 4)] ^
-	                                          (_register[RegisterOffset(z, 0)] << 8) ^
-                                              MultiplicationTable[(_register[RegisterOffset(z, 0)] >> 24) & 0xFF];
+            int z0 = RegisterOffset(z, 0);
+            uint r0 = _register[z0];
+
+            _register[z0] = _register[RegisterOffset(z, 15)] ^ 
+                            _register[RegisterOffset(z, 4)] ^
+	                        (r0 << 8) ^
+                            MultiplicationTable[(r0 >> 24) & 0xFF];
         }
 
         int RegisterOffset(int zero, int offset)
@@ -60,12 +63,36 @@ namespace AXFSoftware.Security.Cryptography.Turing
             return (zero + offset) % RegisterLength;
         }
 
-        protected override uint KeyedS(uint w, int b)
+        protected uint KeyedS0(Word word)
         {
-            return _keyedSBox[0][GetByteFromWord(w, ((0 + b) & 0x3))] ^
-                   _keyedSBox[1][GetByteFromWord(w, ((1 + b) & 0x3))] ^
-                   _keyedSBox[2][GetByteFromWord(w, ((2 + b) & 0x3))] ^
-                   _keyedSBox[3][GetByteFromWord(w, ((3 + b) & 0x3))];
+            return _keyedSBox[0][word.Byte0] ^
+                   _keyedSBox[1][word.Byte1] ^
+                   _keyedSBox[2][word.Byte2] ^
+                   _keyedSBox[3][word.Byte3];
+        }
+
+        protected uint KeyedS1(Word word)
+        {
+            return _keyedSBox[0][word.Byte1] ^
+                   _keyedSBox[1][word.Byte2] ^
+                   _keyedSBox[2][word.Byte3] ^
+                   _keyedSBox[3][word.Byte0];
+        }
+
+        protected uint KeyedS2(Word word)
+        {
+            return _keyedSBox[0][word.Byte2] ^
+                   _keyedSBox[1][word.Byte3] ^
+                   _keyedSBox[2][word.Byte0] ^
+                   _keyedSBox[3][word.Byte1];
+        }
+
+        protected uint KeyedS3(Word word)
+        {
+            return _keyedSBox[0][word.Byte3] ^
+                   _keyedSBox[1][word.Byte0] ^
+                   _keyedSBox[2][word.Byte1] ^
+                   _keyedSBox[3][word.Byte2];
         }
 
         ArraySegment<byte> DoRound(int z, byte [] buffer, int offset)
@@ -79,7 +106,7 @@ namespace AXFSoftware.Security.Cryptography.Turing
 					    d = _register[RegisterOffset(z + 1, 1)];
 						    e = _register[RegisterOffset(z + 1, 0)];
             PseudoHadamardTransform(ref a, ref b, ref c, ref d, ref e);
-            a = KeyedS(a, 0); b = KeyedS(b, 1); c = KeyedS(c, 2); d = KeyedS(d, 3); e = KeyedS(e, 0);
+            a = KeyedS0(a); b = KeyedS1(b); c = KeyedS2(c); d = KeyedS3(d); e = KeyedS0(e);
             PseudoHadamardTransform(ref a, ref b, ref c, ref d, ref e);
             StepRegister(z + 1);
             StepRegister(z + 2);
