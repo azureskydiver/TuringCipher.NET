@@ -23,6 +23,7 @@ namespace AXFSoftware.Security.Cryptography.Turing
 
         bool _disposed = false;
         PaddingMode _padding;
+        Queue<ArraySegment<byte>> _rounds = new Queue<ArraySegment<byte>>();
 
         public int InputBlockSize => BlockSize;
         public int OutputBlockSize => BlockSize;
@@ -65,11 +66,13 @@ namespace AXFSoftware.Security.Cryptography.Turing
                 if (disposing)
                 {
                     // Dispose managed state (managed objects).
+                    _rounds.Clear();
                 }
 
                 // Free unmanaged resources (unmanaged objects)
 
                 // Set large fields to null.
+                _rounds = null;
 
                 _disposed = true;
             }
@@ -99,6 +102,48 @@ namespace AXFSoftware.Security.Cryptography.Turing
                 throw new InvalidOperationException($"{nameof(inputOffset)} + {nameof(inputCount)} must not exceed size of input buffer");
         }
 
+        void SaveUnusedSegments(byte [] pad, int segmentOffset, int count)
+        {
+            var newRounds = new Queue<ArraySegment<byte>>();
+
+            Debug.Assert(count > 0);
+            newRounds.Enqueue(new ArraySegment<byte>(pad, segmentOffset, count));
+            while (_rounds.Count > 0)
+                newRounds.Enqueue(_rounds.Dequeue());
+            _rounds = newRounds;
+        }
+
+        int TransformBlock(byte[] inputBuffer, int inputOffset, int inputCount,
+                           byte[] outputBuffer, int outputOffset,
+                           Func<bool> canGetNextRound,
+                           Func<ArraySegment<byte>> getNextRound)
+        {
+            int total = 0;
+            byte[] pad = null;
+            int segmentOffset = 0;
+            int count = 0;
+
+            while (total < inputCount && canGetNextRound())
+            {
+                var segment = getNextRound();
+
+                pad = segment.Array;
+                segmentOffset = segment.Offset;
+                count = segment.Count;
+                while (count > 0 && total < inputCount)
+                {
+                    outputBuffer[outputOffset++] = (byte)(inputBuffer[inputOffset++] ^ pad[segmentOffset++]);
+                    total++;
+                    count--;
+                }
+            }
+
+            if (count > 0)
+                SaveUnusedSegments(pad, segmentOffset, count);
+
+            return total;
+        }
+
         public int TransformBlock(byte[] inputBuffer, int inputOffset, int inputCount,
                                   byte[] outputBuffer, int outputOffset)
         {
@@ -115,17 +160,14 @@ namespace AXFSoftware.Security.Cryptography.Turing
             if (outputOffset + inputCount > outputBuffer.Length)
                 throw new InvalidOperationException($"{nameof(outputOffset)} + {nameof(inputCount)} must not exceed size of output buffer");
 
-            for (int i = 0; i < inputCount; i += BlockSizeBytes)
-            {
-                var segment = GetNextRound();
-                byte [] pad = segment.Array;
-                int segmentOffset = segment.Offset;
-                int count = segment.Count;
-                while (count-- > 0)
-                    outputBuffer[outputOffset++] = (byte)(inputBuffer[inputOffset++] ^ pad[segmentOffset++]);
-            }
-
-            return inputCount;
+            int total = 0;
+            total += TransformBlock(inputBuffer, inputOffset + total, inputCount - total,
+                                    outputBuffer, outputOffset + total,
+                                    () => _rounds.Count > 0, _rounds.Dequeue);
+            total += TransformBlock(inputBuffer, inputOffset + total, inputCount - total,
+                                    outputBuffer, outputOffset + total,
+                                    () => true, GetNextRound);
+            return total;
         }
 
         byte [] GetPaddedBlock(byte[] inputBuffer, int inputOffset, int inputCount)
