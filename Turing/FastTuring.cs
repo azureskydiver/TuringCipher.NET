@@ -69,39 +69,43 @@ namespace AXFSoftware.Security.Cryptography.Turing
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected uint KeyedS0(Word word)
+        protected uint KeyedS0(uint word)
         {
-            return _keyedSBox[0][word.Byte0] ^
-                   _keyedSBox[1][word.Byte1] ^
-                   _keyedSBox[2][word.Byte2] ^
-                   _keyedSBox[3][word.Byte3];
+            uint k  = _keyedSBox[3][(byte)word];    word >>= 8;
+                 k ^= _keyedSBox[2][(byte)word];    word >>= 8;
+                 k ^= _keyedSBox[1][(byte)word];    word >>= 8;
+                 k ^= _keyedSBox[0][(byte)word];
+            return k;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected uint KeyedS1(Word word)
+        protected uint KeyedS1(uint word)
         {
-            return _keyedSBox[0][word.Byte1] ^
-                   _keyedSBox[1][word.Byte2] ^
-                   _keyedSBox[2][word.Byte3] ^
-                   _keyedSBox[3][word.Byte0];
+            uint k  = _keyedSBox[2][(byte)word];    word >>= 8;
+                 k ^= _keyedSBox[1][(byte)word];    word >>= 8;
+                 k ^= _keyedSBox[0][(byte)word];    word >>= 8;
+                 k ^= _keyedSBox[3][(byte)word];
+            return k;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected uint KeyedS2(Word word)
+        protected uint KeyedS2(uint word)
         {
-            return _keyedSBox[0][word.Byte2] ^
-                   _keyedSBox[1][word.Byte3] ^
-                   _keyedSBox[2][word.Byte0] ^
-                   _keyedSBox[3][word.Byte1];
+            uint k  = _keyedSBox[1][(byte)word];    word >>= 8;
+                 k ^= _keyedSBox[0][(byte)word];    word >>= 8;
+                 k ^= _keyedSBox[3][(byte)word];    word >>= 8;
+                 k ^= _keyedSBox[2][(byte)word];
+            return k;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected uint KeyedS3(Word word)
+        protected uint KeyedS3(uint word)
         {
-            return _keyedSBox[0][word.Byte3] ^
-                   _keyedSBox[1][word.Byte0] ^
-                   _keyedSBox[2][word.Byte1] ^
-                   _keyedSBox[3][word.Byte2];
+            uint k  = _keyedSBox[0][(byte)word];    word >>= 8;
+                 k ^= _keyedSBox[3][(byte)word];    word >>= 8;
+                 k ^= _keyedSBox[2][(byte)word];    word >>= 8;
+                 k ^= _keyedSBox[1][(byte)word];
+            return k;
         }
 
         void DoRound(int z, int offset)
