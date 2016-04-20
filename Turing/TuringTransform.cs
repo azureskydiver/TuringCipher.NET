@@ -113,6 +113,26 @@ namespace AXFSoftware.Security.Cryptography.Turing
             _rounds = newRounds;
         }
 
+        static unsafe int XorBytes(int count,
+                                   byte [] inputBuffer, int inputOffset,
+                                   byte [] streamBuffer, int streamOffset,
+                                   byte [] outputBuffer, int outputOffset)
+        {
+            Debug.Assert(count % sizeof(uint) == 0);
+
+            fixed(byte * clear = &inputBuffer[inputOffset],
+                         crypt = &streamBuffer[streamOffset],
+                         cipher = &outputBuffer[outputOffset])
+            {
+                var src = (uint *) clear;
+                var pad = (uint *) crypt;
+                var dst = (uint *) cipher;
+                for(int i = 0; i < count; i += sizeof(uint))
+                    *(dst++) = *(src++) ^ *(pad++);
+            }
+            return count;
+        }
+
         int TransformBlock(byte[] inputBuffer, int inputOffset, int inputCount,
                            byte[] outputBuffer, int outputOffset,
                            Func<bool> canGetNextRound,
@@ -130,12 +150,16 @@ namespace AXFSoftware.Security.Cryptography.Turing
                 pad = segment.Array;
                 segmentOffset = segment.Offset;
                 count = segment.Count;
-                while (count > 0 && total < inputCount)
-                {
-                    outputBuffer[outputOffset++] = (byte)(inputBuffer[inputOffset++] ^ pad[segmentOffset++]);
-                    total++;
-                    count--;
-                }
+
+                var processed = XorBytes(Math.Min(count, inputCount - total),
+                                         inputBuffer, inputOffset,
+                                         pad, segmentOffset,
+                                         outputBuffer, outputOffset);
+                total += processed;
+                count -= processed;
+                inputOffset += processed;
+                segmentOffset += processed;
+                outputOffset += outputOffset;
             }
 
             if (count > 0)
