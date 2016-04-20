@@ -1,4 +1,6 @@
-﻿using System;
+﻿// #define USE_6432_XOR
+
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -124,11 +126,33 @@ namespace AXFSoftware.Security.Cryptography.Turing
                          crypt = &streamBuffer[streamOffset],
                          cipher = &outputBuffer[outputOffset])
             {
+                var end = &clear[count];
+
+                // Using the vanilla 32 bit version is profiling to be
+                // faster than the 64-32 bit version. Need to re-examine
+                // as processors and JIT compilers get better over the years.
+#if USE_6432_XOR
+                var src64 = (UInt64 *) clear;
+                var pad64 = (UInt64 *) crypt;
+                var dst64 = (UInt64 *) cipher;
+                var end64 = &src64[count / sizeof(UInt64)];
+
+                while(src64 < end64)
+                    *dst64++ = *src64++ ^ *pad64++;
+
+                var src32 = (UInt32 *) src64;
+                var pad32 = (UInt32 *) pad64;
+                var dst32 = (UInt32 *) dst64;
+
+                while (src32 < end)
+                    *dst32++ = *src32++ ^ *pad32++;
+#else
                 var src = (uint *) clear;
                 var pad = (uint *) crypt;
                 var dst = (uint *) cipher;
-                for(int i = 0; i < count; i += sizeof(uint))
-                    *(dst++) = *(src++) ^ *(pad++);
+                while (src < end)
+                    *dst++ = *src++ ^ *pad++;
+#endif
             }
             return count;
         }
