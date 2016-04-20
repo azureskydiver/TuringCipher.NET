@@ -17,7 +17,7 @@ namespace AXFSoftware.Security.Cryptography.Turing
         }
     }
 
-    public class ReferenceTuringTransform : TuringTransform
+    public partial class ReferenceTuringTransform : TuringTransform
     {
         protected const int RegisterLength = 17;
 
@@ -174,16 +174,6 @@ namespace AXFSoftware.Security.Cryptography.Turing
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected static void PseudoHadamardTransform(ref uint a, ref uint b, ref uint c, ref uint d, ref uint e)
-        {
-            e += a + b + c + d;
-            a += e;
-            b += e;
-            c += e;
-            d += e;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected static void PseudoHadamardTransform(uint[] words)
         {
             int lastIndex = words.Length - 1;
@@ -232,25 +222,33 @@ namespace AXFSoftware.Security.Cryptography.Turing
 
         protected override ArraySegment<byte> GetNextRound()
         {
-            uint a, b, c, d, e;
+            Block block;
 
             StepRegister();
-            a = _register[16];  b = _register[13];  c = _register[6];   d = _register[1];   e = _register[0];
-            PseudoHadamardTransform(ref a, ref b, ref c, ref d, ref e);
-            a = KeyedS(a, 0);   b = KeyedS(b, 8);   c = KeyedS(c, 16);  d = KeyedS(d, 24);  e = KeyedS(e, 0);
-            PseudoHadamardTransform(ref a, ref b, ref c, ref d, ref e);
+            block.A = _register[16];
+                block.B = _register[13];
+                    block.C = _register[6];
+                        block.D = _register[1];
+                            block.E = _register[0];
+            block.PseudoHadamardTransform();
+            block.A = KeyedS(block.A, 0);
+                block.B = KeyedS(block.B, 8);
+                    block.C = KeyedS(block.C, 16);
+                        block.D = KeyedS(block.D, 24);
+                            block.E = KeyedS(block.E, 0);
+            block.PseudoHadamardTransform();
             StepRegister();
             StepRegister();
             StepRegister();
-            a += _register[14]; b += _register[12]; c += _register[8];  d += _register[1];  e += _register[0];
+            block.A += _register[14];
+                block.B += _register[12];
+                    block.C += _register[8];
+                        block.D += _register[1];
+                            block.E += _register[0];
             StepRegister();
 
             byte[] buffer = new byte[BlockSizeBytes];
-            ConvertWordToBytes(a, buffer, 0);
-            ConvertWordToBytes(b, buffer, 4);
-            ConvertWordToBytes(c, buffer, 8);
-            ConvertWordToBytes(d, buffer, 12);
-            ConvertWordToBytes(e, buffer, 16);
+            block.CopyTo(buffer, 0);
             return new ArraySegment<byte>(buffer);
         }
     }

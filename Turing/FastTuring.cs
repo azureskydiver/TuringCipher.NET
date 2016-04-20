@@ -106,31 +106,31 @@ namespace AXFSoftware.Security.Cryptography.Turing
 
         void DoRound(int z, int offset)
         {
-            uint a, b, c, d, e;
+            Block block;
 
             StepRegister(z);
-            a = _register[_registerOffset[z + 1 + 16]];
-		        b = _register[_registerOffset[z + 1 + 13]];
-			        c = _register[_registerOffset[z + 1 + 6]];
-					    d = _register[_registerOffset[z + 1 + 1]];
-						    e = _register[_registerOffset[z + 1 + 0]];
-            PseudoHadamardTransform(ref a, ref b, ref c, ref d, ref e);
-            a = KeyedS0(a); b = KeyedS1(b); c = KeyedS2(c); d = KeyedS3(d); e = KeyedS0(e);
-            PseudoHadamardTransform(ref a, ref b, ref c, ref d, ref e);
+            block.A = _register[_registerOffset[z + 1 + 16]];
+		        block.B = _register[_registerOffset[z + 1 + 13]];
+			        block.C = _register[_registerOffset[z + 1 + 6]];
+					    block.D = _register[_registerOffset[z + 1 + 1]];
+						    block.E = _register[_registerOffset[z + 1 + 0]];
+            block.PseudoHadamardTransform();
+            block.A = KeyedS0(block.A);
+                block.B = KeyedS1(block.B);
+                    block.C = KeyedS2(block.C);
+                        block.D = KeyedS3(block.D);
+                            block.E = KeyedS0(block.E);
+            block.PseudoHadamardTransform();
             StepRegister(z + 1);
             StepRegister(z + 2);
             StepRegister(z + 3);
-            a += _register[_registerOffset[z + 4 + 14]];
-		        b += _register[_registerOffset[z + 4 + 12]];
-			        c += _register[_registerOffset[z + 4 + 8]];
-					    d += _register[_registerOffset[z + 4 + 1]];
-						    e += _register[_registerOffset[z + 4 + 0]];
+            block.A += _register[_registerOffset[z + 4 + 14]];
+		        block.B += _register[_registerOffset[z + 4 + 12]];
+			        block.C += _register[_registerOffset[z + 4 + 8]];
+					    block.D += _register[_registerOffset[z + 4 + 1]];
+						    block.E += _register[_registerOffset[z + 4 + 0]];
             StepRegister(z + 4);
-            ConvertWordToBytes(a, _buffer, offset);
-		        ConvertWordToBytes(b, _buffer, offset + 4);
-			            ConvertWordToBytes(c, _buffer, offset + 8);
-					        ConvertWordToBytes(d, _buffer, offset + 12);
-						            ConvertWordToBytes(e, _buffer, offset + 16);
+            block.CopyTo(_buffer, offset);
         }
 
         void GetNextRounds()
