@@ -67,15 +67,17 @@ namespace AXFSoftware.Security.Cryptography.Turing
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected static void ConvertWordToBytes(uint word, byte[] data, int offset)
         {
-            offset += 3;
-            data[offset--] = (byte)(word & 0xFF);
+            var b3 = (byte)word;
             word >>= 8;
-            data[offset--] = (byte)(word & 0xFF);
+            var b2 = (byte)word;
             word >>= 8;
-            data[offset--] = (byte)(word & 0xFF);
+            var b1 = (byte)word;
             word >>= 8;
-            data[offset--] = (byte)(word & 0xFF);
-            word >>= 8;
+
+            data[offset++] = (byte)word;
+            data[offset++] = b1;
+            data[offset++] = b2;
+            data[offset  ] = b3;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
