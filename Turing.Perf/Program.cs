@@ -12,7 +12,7 @@ namespace PerfTests
     class Program
     {
         const int Size = ((10000000 / TuringTransform.BlockSizeBytes) + 1) * TuringTransform.BlockSizeBytes;
-        const int NumberOfRuns = 5;
+        const int NumberOfRuns = 10;
 
         Tuple<TimeSpan,int> DoRun(ICryptoTransform transform, byte [] clear, byte [] cipher)
         {
