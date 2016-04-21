@@ -16,6 +16,9 @@ using System.Runtime.InteropServices;
 // COM, set the ComVisible attribute to true on that type.
 [assembly: ComVisible(false)]
 
+[assembly: InternalsVisibleTo("Turing.Perf")]
+[assembly: InternalsVisibleTo("AXFSoftware.Security.Cryptography.Turing.Tests")]
+
 // The following GUID is for the ID of the typelib if this project is exposed to COM
 [assembly: Guid("53b7d657-686d-4a4b-ab20-255a201620a2")]
 

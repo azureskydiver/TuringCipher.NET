@@ -53,11 +53,38 @@ namespace PerfTests
             Console.WriteLine($"==> Average: {averageTime}   ({MBPerSecond(averageSize, averageTime)} MB/sec)");
         }
 
+        void TimeXors(Func<int, byte [], int, byte [], int, byte [], int, int> xorbytes)
+        {
+            Console.WriteLine($"{xorbytes.Method.Name}: ");
+
+            var stopwatch = new Stopwatch();
+            byte[] clear = new byte[Size];
+            byte[] pad = new byte[clear.Length];
+            byte[] cipher = new byte[clear.Length];
+            TimeSpan totalTime = new TimeSpan(0);
+            int totalSize = 0;
+            for (int run = 0; run < NumberOfRuns; run++)
+            {
+                stopwatch.Reset();
+                stopwatch.Start();
+                xorbytes(Size, clear, 0, pad, 0, cipher, 0);
+                stopwatch.Stop();
+                Console.WriteLine($"{stopwatch.Elapsed}   ({MBPerSecond(Size, stopwatch.Elapsed)} MB/sec)");
+                totalTime += stopwatch.Elapsed;
+                totalSize += Size;
+            }
+            TimeSpan averageTime = TimeSpan.FromMilliseconds(totalTime.TotalMilliseconds / NumberOfRuns);
+            int averageSize = totalSize / NumberOfRuns;
+            Console.WriteLine($"==> Average: {averageTime}   ({MBPerSecond(averageSize, averageTime)} MB/sec)");
+        }
+
         void Run(string[] args)
         {
             TimeRun<ReferenceTuring>();
             TimeRun<TableTuring>();
             TimeRun<FastTuring>();
+            TimeXors(UnsafeMethods.XorBytes64);
+            TimeXors(UnsafeMethods.XorBytes32);
             Console.ReadKey();
         }
 
