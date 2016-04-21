@@ -39,23 +39,22 @@ namespace AXFSoftware.Security.Cryptography.Turing
                 fixed(uint* source = &this.A)
                 fixed(byte* dest = &buffer[offset])
                 {
-                    byte* dst = dest;
+                    uint* dst = (uint *)dest;
                     uint* src = source;
 
-                    for(int i = 0; i < 5; i++)
+                    if (BitConverter.IsLittleEndian)
                     {
-                        uint w = *src++;
-                        var b3 = (byte)w;
-                        w >>= 8;
-                        var b2 = (byte)w;
-                        w >>= 8;
-                        var b1 = (byte)w;
-                        w >>= 8;
-
-                        *dst++ = (byte)w;
-                        *dst++ = b1;
-                        *dst++ = b2;
-                        *dst++ = b3;
+                        for (int i = 0; i < 5; i++)
+                        {
+                            uint w = *src++;
+                            w = ((w & 0xFF00FF00) >> 8) | ((w & 0x00FF00FF) << 8);
+                            *dst++ = (w >> 16) | (w << 16);
+                        }
+                    }
+                    else
+                    {
+                        for (int i = 0; i < 5; i++)
+                            *dst++ = *src++;
                     }
                 }
             }
